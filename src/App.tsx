@@ -2,9 +2,9 @@
 import { useRef, useState } from 'react'
 import {
   AudioLines, Video, Music2, Image as ImageIcon,
-  FolderOpen, Upload, Plus, Scissors, Settings,
-  Play, Pause, Trash2, Film, Volume2,
-  ArrowLeft, Mic, Headphones, SlidersHorizontal
+  Plus, Bell, FolderOpen, Sparkles, Layers, Type,
+  Play, Pause, Trash2, Volume2, Mic, Headphones,
+  SlidersHorizontal, Film, X, Scissors
 } from 'lucide-react'
 
 type Media = {
@@ -14,36 +14,47 @@ type Media = {
   url: string
 }
 
-type EditorMode = 'home' | 'video' | 'music'
+type EditorMode = 'video' | 'music'
+type VideoPanel = 'media' | 'effects' | 'transitions' | 'text'
+type MusicPanel = 'tracks' | 'effects' | 'mixer'
 
 export default function App() {
   const [media, setMedia] = useState<Media[]>([])
   const [selected, setSelected] = useState<Media | null>(null)
   const [mode, setMode] = useState<EditorMode>('video')
+  const [videoPanel, setVideoPanel] = useState<VideoPanel>('media')
+  const [musicPanel, setMusicPanel] = useState<MusicPanel>('tracks')
   const [playing, setPlaying] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
 
-  const fileRef = useRef<HTMLInputElement>(null)
+  const videoFileRef = useRef<HTMLInputElement>(null)
+  const audioFileRef = useRef<HTMLInputElement>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const visibleMedia = media.filter(item =>
     mode === 'music'
       ? item.type.startsWith('audio/')
-      : mode === 'video'
-        ? true
-        : false
+      : true
   )
 
-  function importFiles(files: FileList | null) {
+  const videoMedia = media.filter(item =>
+    item.type.startsWith('video/') ||
+    item.type.startsWith('image/')
+  )
+
+  const audioMedia = media.filter(item =>
+    item.type.startsWith('audio/')
+  )
+
+  function importFiles(files: FileList | null, kind: 'video' | 'audio') {
     if (!files) return
 
     const added = Array.from(files)
-      .filter(file => {
-        if (mode === 'music') return file.type.startsWith('audio/')
-        return file.type.startsWith('audio/') ||
-          file.type.startsWith('video/') ||
-          file.type.startsWith('image/')
-      })
+      .filter(file => kind === 'audio'
+        ? file.type.startsWith('audio/')
+        : file.type.startsWith('video/') || file.type.startsWith('image/')
+      )
       .map(file => ({
         id: Date.now() + Math.random(),
         name: file.name,
@@ -51,29 +62,59 @@ export default function App() {
         url: URL.createObjectURL(file)
       }))
 
-    setMedia(old => [...old, ...added])
-
     if (added.length) {
+      setMedia(old => [...old, ...added])
       setSelected(added[0])
+      setPlaying(false)
     }
 
-    if (fileRef.current) {
-      fileRef.current.value = ''
+    if (kind === 'audio' && audioFileRef.current) {
+      audioFileRef.current.value = ''
     }
+
+    if (kind === 'video' && videoFileRef.current) {
+      videoFileRef.current.value = ''
+    }
+  }
+
+  function openEditor(editor: EditorMode) {
+    audioRef.current?.pause()
+    videoRef.current?.pause()
+    setPlaying(false)
+    setMode(editor)
+    setNotificationsOpen(false)
+
+    setSelected(current => {
+      if (editor === 'music') {
+        return current?.type.startsWith('audio/')
+          ? current
+          : audioMedia[0] || null
+      }
+
+      return current || videoMedia[0] || audioMedia[0] || null
+    })
+  }
+
+  function selectMedia(item: Media) {
+    setSelected(item)
+    setPlaying(false)
+    audioRef.current?.pause()
+    videoRef.current?.pause()
   }
 
   function removeMedia(id: number) {
     const item = media.find(file => file.id === id)
-
-    if (item) {
-      URL.revokeObjectURL(item.url)
-    }
+    if (item) URL.revokeObjectURL(item.url)
 
     const remaining = media.filter(file => file.id !== id)
     setMedia(remaining)
 
     if (selected?.id === id) {
-      setSelected(remaining[0] || null)
+      setSelected(
+        mode === 'music'
+          ? remaining.find(file => file.type.startsWith('audio/')) || null
+          : remaining[0] || null
+      )
       setPlaying(false)
     }
   }
@@ -88,442 +129,504 @@ export default function App() {
     if (!player) return
 
     if (player.paused) {
-      void player.play()
-      setPlaying(true)
+      void player.play().catch(() => setPlaying(false))
     } else {
       player.pause()
-      setPlaying(false)
     }
   }
 
-  function openEditor(editor: 'video' | 'music') {
-  setMode(editor)
-  setPlaying(false)
-
-  setSelected(current => {
-    if (editor === 'music') {
-      return current?.type.startsWith('audio/')
-        ? current
-        : media.find(item => item.type.startsWith('audio/')) || null
-    }
-
-    return current || media[0] || null
-  })
-}
-
-  function goHome() {
-    setMode('home')
-    setSelected(null)
-    setPlaying(false)
-  }
-
-  if (mode === 'home') {
-    return (
-      <main className="app">
-        <header className="topbar">
-          <div className="brand">
-            <AudioLines size={27} />
-            <span>STUDIO</span>
-          </div>
-          <span className="status">● PROJECTO LOCAL</span>
-        </header>
-
-        <section className="welcome">
-          <p className="eyebrow">A SUA CRIATIVIDADE, SEM LIMITES</p>
-          <h1>O teu estúdio.<br />
-            <span>A tua criação.</span>
-          </h1>
-          <p className="sub">
-            Escolhe o teu ambiente de trabalho e começa a criar.
-          </p>
-        </section>
-
-        <section className="editor-choice">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">CENTRO DE CRIAÇÃO</p>
-              <h2>Onde vamos trabalhar?</h2>
-            </div>
-          </div>
-
-          <button
-            className="editor-card video-card"
-            onClick={() => openEditor('video')}
-          >
-            <div className="editor-card-icon">
-              <Video size={32} />
-            </div>
-            <div className="editor-card-content">
-              <span className="eyebrow">PRODUÇÃO VISUAL</span>
-              <h2>Editor de Vídeo</h2>
-              <p>
-                Montagem, cortes, imagens, vídeos, efeitos e bandas sonoras.
-              </p>
-              <strong>ENTRAR NO EDITOR <span>→</span></strong>
-            </div>
-          </button>
-
-          <button
-            className="editor-card music-card"
-            onClick={() => openEditor('music')}
-          >
-            <div className="editor-card-icon">
-              <AudioLines size={32} />
-            </div>
-            <div className="editor-card-content">
-              <span className="eyebrow">PRODUÇÃO SONORA</span>
-              <h2>Editor de Música</h2>
-              <p>
-                Captação vocal, gravação, faixas, edição e mistura de áudio.
-              </p>
-              <strong>ENTRAR NO EDITOR <span>→</span></strong>
-            </div>
-          </button>
-        </section>
-
-        <footer className="studio-footer">
-          <AudioLines size={17} />
-          <span>STUDIO — AUDIO & VIDEO WORKSPACE</span>
-        </footer>
-      </main>
-    )
+  function importButton(kind: 'video' | 'audio') {
+    if (kind === 'audio') audioFileRef.current?.click()
+    else videoFileRef.current?.click()
   }
 
   const isMusic = mode === 'music'
 
   return (
-    <main className="app">
-      <header className="topbar">
-        <button className="back-button" onClick={goHome}>
-          <ArrowLeft size={19} />
-          <span>STUDIO</span>
-        </button>
+    <main className={`app ${isMusic ? 'music-mode' : 'video-mode'}`}>
 
+      <input
+        ref={videoFileRef}
+        hidden
+        type="file"
+        multiple
+        accept="video/*,image/*"
+        onChange={e => importFiles(e.target.files, 'video')}
+      />
+
+      <input
+        ref={audioFileRef}
+        hidden
+        type="file"
+        multiple
+        accept="audio/*"
+        onChange={e => importFiles(e.target.files, 'audio')}
+      />
+
+      <header className="topbar">
         <div className="brand">
-          {isMusic ? <AudioLines size={23} /> : <Video size={23} />}
-          <span>{isMusic ? 'MUSIC' : 'VIDEO'}</span>
+          <AudioLines size={24} />
+          <span>STUDIO</span>
         </div>
 
-        <span className="status">● LOCAL</span>
+        <div className="topbar-actions">
+          <button
+            className={`mode-button ${!isMusic ? 'mode-active' : ''}`}
+            onClick={() => openEditor('video')}
+            title="Editor de vídeo"
+            aria-label="Editor de vídeo"
+          >
+            <Video size={19} />
+          </button>
+
+          <button
+            className={`mode-button ${isMusic ? 'mode-active' : ''}`}
+            onClick={() => openEditor('music')}
+            title="Editor de música"
+            aria-label="Editor de música"
+          >
+            <AudioLines size={19} />
+          </button>
+
+          <div className="notification-area">
+            <button
+              className={`mode-button notification-button ${notificationsOpen ? 'mode-active' : ''}`}
+              onClick={() => setNotificationsOpen(value => !value)}
+              title="Notificações"
+              aria-label="Notificações"
+            >
+              <Bell size={18} />
+            </button>
+
+            {notificationsOpen && (
+              <div className="notification-panel">
+                <div className="notification-title">
+                  <strong>Notificações</strong>
+                  <button onClick={() => setNotificationsOpen(false)} aria-label="Fechar">
+                    <X size={16} />
+                  </button>
+                </div>
+                <p>Ainda não tens notificações.</p>
+                <small>Os avisos do STUDIO aparecerão aqui.</small>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
-      <section className="welcome">
-        <p className="eyebrow">
-          {isMusic ? 'AUDIO WORKSPACE' : 'VIDEO WORKSPACE'}
-        </p>
-        <h1>
-          {isMusic ? 'O teu espaço de som.' : 'O teu espaço visual.'}
-        </h1>
-        <p className="sub">
-          {isMusic
-            ? 'Prepara as tuas gravações e produções musicais.'
-            : 'Organiza os teus vídeos, imagens e bandas sonoras.'}
-        </p>
+      {isMusic ? (
+        <div className="music-layout">
 
-        <button
-          className="primary"
-          onClick={() => fileRef.current?.click()}
-        >
-          <Plus size={19} />
-          Importar {isMusic ? 'áudio' : 'ficheiros'}
-        </button>
+          <aside className="tool-sidebar">
+            <button
+              className={musicPanel === 'tracks' ? 'tool-active' : ''}
+              onClick={() => setMusicPanel('tracks')}
+              title="Faixas"
+            >
+              <AudioLines />
+              <span>Faixas</span>
+            </button>
 
-        <input
-          ref={fileRef}
-          hidden
-          type="file"
-          multiple
-          accept={isMusic ? 'audio/*' : 'audio/*,video/*,image/*'}
-          onChange={e => importFiles(e.target.files)}
-        />
-      </section>
+            <button
+              className={musicPanel === 'effects' ? 'tool-active' : ''}
+              onClick={() => setMusicPanel('effects')}
+              title="Efeitos"
+            >
+              <Sparkles />
+              <span>Efeitos</span>
+            </button>
 
-      <section className="workspace">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">MONITOR</p>
-            <h2>{isMusic ? 'Monitor de áudio' : 'Pré-visualização'}</h2>
-          </div>
-          <span className="count">
-            {visibleMedia.length} ficheiros
-          </span>
+            <button
+              className={musicPanel === 'mixer' ? 'tool-active' : ''}
+              onClick={() => setMusicPanel('mixer')}
+              title="Misturador"
+            >
+              <SlidersHorizontal />
+              <span>Mistura</span>
+            </button>
+          </aside>
+
+          <aside className="asset-panel">
+            {musicPanel === 'tracks' && (
+              <>
+                <div className="panel-heading">
+                  <span>BIBLIOTECA DE ÁUDIO</span>
+                  <button className="small-plus" onClick={() => importButton('audio')}>
+                    <Plus size={17} />
+                  </button>
+                </div>
+
+                {audioMedia.map(item => (
+                  <button
+                    key={item.id}
+                    className={`asset-item ${selected?.id === item.id ? 'asset-selected' : ''}`}
+                    onClick={() => selectMedia(item)}
+                  >
+                    <Music2 size={17} />
+                    <span>{item.name}</span>
+                    <button
+                      className="asset-delete"
+                      onClick={e => {
+                        e.stopPropagation()
+                        removeMedia(item.id)
+                      }}
+                      aria-label="Eliminar áudio"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </button>
+                ))}
+
+                {audioMedia.length === 0 && (
+                  <p className="panel-empty">Toca no + para adicionar áudio.</p>
+                )}
+              </>
+            )}
+
+            {musicPanel === 'effects' && (
+              <>
+                <div className="panel-heading">EFEITOS DE ÁUDIO</div>
+                <div className="tool-placeholder">
+                  <Sparkles size={25} />
+                  <strong>Efeitos sonoros</strong>
+                  <p>Equalização, reverberação e outros efeitos serão implementados nesta área.</p>
+                </div>
+              </>
+            )}
+
+            {musicPanel === 'mixer' && (
+              <>
+                <div className="panel-heading">MISTURADOR</div>
+                <div className="tool-placeholder">
+                  <SlidersHorizontal size={25} />
+                  <strong>Mistura de áudio</strong>
+                  <p>Os controlos de volume e mistura avançada serão adicionados nesta área.</p>
+                </div>
+              </>
+            )}
+          </aside>
+
+          <section className="music-main">
+            <div className="editor-heading">
+              <div>
+                <span className="eyebrow">AUDIO WORKSPACE</span>
+                <h1>Estúdio de música</h1>
+              </div>
+              <span className="local-status">● LOCAL</span>
+            </div>
+
+            <div className="music-monitor">
+              <div className="audio-artwork">
+                <Headphones size={48} />
+                <span>STUDIO AUDIO</span>
+              </div>
+
+              <div className="music-now-playing">
+                <span>FAIXA SELECCIONADA</span>
+                <strong>{selected?.type.startsWith('audio/') ? selected.name : 'Nenhum áudio seleccionado'}</strong>
+
+                {selected?.type.startsWith('audio/') && (
+                  <audio
+                    ref={audioRef}
+                    src={selected.url}
+                    controls
+                    onPlay={() => setPlaying(true)}
+                    onPause={() => setPlaying(false)}
+                  />
+                )}
+              </div>
+            </div>
+
+            <section className="timeline music-timeline">
+              <div className="timeline-heading">
+                <div>
+                  <span className="eyebrow">AUDIO SEQUENCER</span>
+                  <h2>Linha de áudio</h2>
+                </div>
+                <button className="small-plus" onClick={() => importButton('audio')}>
+                  <Plus size={17} />
+                </button>
+              </div>
+
+              <div className="timeline-toolbar">
+                <button onClick={togglePlayback} disabled={!selected?.type.startsWith('audio/')}>
+                  {playing ? <Pause size={17} /> : <Play size={17} />}
+                  {playing ? 'Pausar' : 'Reproduzir'}
+                </button>
+                <span>{audioMedia.length} faixas</span>
+              </div>
+
+              <div className="timeline-ruler">
+                <span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span>
+              </div>
+
+              <div className="track">
+                <button
+                  className="track-plus"
+                  onClick={() => importButton('audio')}
+                  title="Adicionar faixa de áudio"
+                >
+                  <Plus size={17} />
+                </button>
+                <div className="track-label">
+                  <Volume2 size={16} />
+                  <span>ÁUDIO 01</span>
+                </div>
+                <div className="track-content">
+                  {audioMedia.map(item => (
+                    <button
+                      key={item.id}
+                      className={`clip audio-clip ${selected?.id === item.id ? 'clip-active' : ''}`}
+                      onClick={() => selectMedia(item)}
+                    >
+                      <AudioLines size={15} />
+                      <span>{item.name}</span>
+                    </button>
+                  ))}
+                  {audioMedia.length === 0 && <span className="track-empty">Adiciona áudio no +</span>}
+                </div>
+              </div>
+
+              <p className="timeline-note">
+                A gravação vocal, edição de ondas e mistura avançada serão desenvolvidas nas próximas etapas.
+              </p>
+            </section>
+
+            <section className="recording-panel">
+              <Mic size={22} />
+              <div>
+                <strong>Captação vocal</strong>
+                <p>Área preparada para futuras gravações com microfone.</p>
+              </div>
+            </section>
+          </section>
         </div>
+      ) : (
+        <div className="video-layout">
 
-        <div className="preview">
-          {selected ? (
-            selected.type.startsWith('video/') ? (
-              <video
-                ref={videoRef}
-                src={selected.url}
-                controls
-                playsInline
-                onPlay={() => setPlaying(true)}
-                onPause={() => setPlaying(false)}
-              />
-            ) : selected.type.startsWith('image/') ? (
-              <img src={selected.url} alt={selected.name} />
-            ) : (
-              <div className="audio-preview">
-                {isMusic
-                  ? <Headphones size={54} />
-                  : <Music2 size={54} />}
-                <h3>{selected.name}</h3>
-                <audio
-                  ref={audioRef}
+          <aside className="tool-sidebar">
+            <button
+              className={videoPanel === 'media' ? 'tool-active' : ''}
+              onClick={() => setVideoPanel('media')}
+              title="Media"
+            >
+              <FolderOpen />
+              <span>Media</span>
+            </button>
+
+            <button
+              className={videoPanel === 'effects' ? 'tool-active' : ''}
+              onClick={() => setVideoPanel('effects')}
+              title="Efeitos"
+            >
+              <Sparkles />
+              <span>Efeitos</span>
+            </button>
+
+            <button
+              className={videoPanel === 'transitions' ? 'tool-active' : ''}
+              onClick={() => setVideoPanel('transitions')}
+              title="Transições"
+            >
+              <Layers />
+              <span>Transições</span>
+            </button>
+
+            <button
+              className={videoPanel === 'text' ? 'tool-active' : ''}
+              onClick={() => setVideoPanel('text')}
+              title="Texto"
+            >
+              <Type />
+              <span>Texto</span>
+            </button>
+          </aside>
+
+          <aside className="asset-panel">
+            {videoPanel === 'media' && (
+              <>
+                <div className="panel-heading">
+                  <span>PROJECT MEDIA</span>
+                  <button className="small-plus" onClick={() => importButton('video')}>
+                    <Plus size={17} />
+                  </button>
+                </div>
+
+                {videoMedia.map(item => (
+                  <button
+                    key={item.id}
+                    className={`asset-item ${selected?.id === item.id ? 'asset-selected' : ''}`}
+                    onClick={() => selectMedia(item)}
+                  >
+                    {item.type.startsWith('video/') ? <Video size={17} /> : <ImageIcon size={17} />}
+                    <span>{item.name}</span>
+                    <button
+                      className="asset-delete"
+                      onClick={e => {
+                        e.stopPropagation()
+                        removeMedia(item.id)
+                      }}
+                      aria-label="Eliminar ficheiro"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  </button>
+                ))}
+
+                {videoMedia.length === 0 && (
+                  <p className="panel-empty">Toca no + para adicionar vídeos ou imagens.</p>
+                )}
+              </>
+            )}
+
+            {videoPanel === 'effects' && (
+              <>
+                <div className="panel-heading">EFEITOS VISUAIS</div>
+                <div className="tool-placeholder">
+                  <Sparkles size={25} />
+                  <strong>Efeitos</strong>
+                  <p>Filtros, correcção de cor e efeitos visuais serão adicionados aqui.</p>
+                </div>
+              </>
+            )}
+
+            {videoPanel === 'transitions' && (
+              <>
+                <div className="panel-heading">TRANSIÇÕES</div>
+                <div className="tool-placeholder">
+                  <Layers size={25} />
+                  <strong>Transições</strong>
+                  <p>Passagens entre cenas e animações serão adicionadas aqui.</p>
+                </div>
+              </>
+            )}
+
+            {videoPanel === 'text' && (
+              <>
+                <div className="panel-heading">TEXTO E TÍTULOS</div>
+                <div className="tool-placeholder">
+                  <Type size={25} />
+                  <strong>Títulos</strong>
+                  <p>Ferramentas para inserir textos e legendas serão adicionadas aqui.</p>
+                </div>
+              </>
+            )}
+          </aside>
+
+          <section className="video-main">
+            <div className="editor-heading">
+              <div>
+                <span className="eyebrow">VIDEO WORKSPACE</span>
+                <h1>Editor de vídeo</h1>
+              </div>
+              <span className="local-status">● LOCAL</span>
+            </div>
+
+            <div className="video-monitor">
+              {selected?.type.startsWith('video/') ? (
+                <video
+                  ref={videoRef}
                   src={selected.url}
                   controls
+                  playsInline
                   onPlay={() => setPlaying(true)}
                   onPause={() => setPlaying(false)}
                 />
-              </div>
-            )
-          ) : (
-            <div className="empty-preview">
-              <div className="preview-icon">
-                {isMusic
-                  ? <AudioLines size={38} />
-                  : <Film size={38} />}
-              </div>
-              <h3>{isMusic ? 'Monitor de som' : 'Monitor de vídeo'}</h3>
-              <p>Selecciona um ficheiro na biblioteca para começar.</p>
-            </div>
-          )}
-        </div>
-
-        <div className="section-heading library-heading">
-          <div>
-            <p className="eyebrow">
-              {isMusic ? 'AUDIO LIBRARY' : 'MEDIA LIBRARY'}
-            </p>
-            <h2>{isMusic ? 'Biblioteca de áudio' : 'Biblioteca de media'}</h2>
-          </div>
-
-          <button
-            className="icon-button"
-            onClick={() => fileRef.current?.click()}
-          >
-            <Upload size={19} />
-          </button>
-        </div>
-
-        {visibleMedia.length === 0 ? (
-          <div className="empty-library">
-            <FolderOpen size={30} />
-            <p>
-              {isMusic
-                ? 'Ainda não existem ficheiros de áudio.'
-                : 'A tua biblioteca está vazia.'}
-            </p>
-            <button onClick={() => fileRef.current?.click()}>
-              Adicionar ficheiros
-            </button>
-          </div>
-        ) : (
-          <div className="media-list">
-            {visibleMedia.map(item => (
-              <div
-                className={`media-item ${
-                  selected?.id === item.id ? 'active' : ''
-                }`}
-                key={item.id}
-              >
-                <button
-                  className="media-select"
-                  onClick={() => {
-                    setSelected(item)
-                    setPlaying(false)
-                  }}
-                >
-                  {item.type.startsWith('video/') ? <Video /> :
-                    item.type.startsWith('image/') ? <ImageIcon /> :
-                      <Music2 />}
-
-                  <span>{item.name}</span>
-                  <small>{item.type.split('/')[0]}</small>
-                </button>
-
-                <button
-                  className="delete-button"
-                  onClick={() => removeMedia(item.id)}
-                  aria-label="Eliminar ficheiro"
-                >
-                  <Trash2 size={17} />
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="timeline">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">
-              {isMusic ? 'AUDIO SEQUENCER' : 'VIDEO EDITOR'}
-            </p>
-            <h2>{isMusic ? 'Área de áudio' : 'Linha de edição'}</h2>
-          </div>
-          {isMusic
-            ? <SlidersHorizontal size={20} />
-            : <Scissors size={20} />}
-        </div>
-
-        <div className="timeline-toolbar">
-          <button
-            onClick={togglePlayback}
-            disabled={!selected || selected.type.startsWith('image/')}
-          >
-            {playing ? <Pause size={18} /> : <Play size={18} />}
-            {playing ? 'Pausar' : 'Reproduzir'}
-          </button>
-
-          <span>{visibleMedia.length} ficheiros disponíveis</span>
-        </div>
-
-        <div className="timeline-ruler">
-          <span>00:00</span>
-          <span>00:10</span>
-          <span>00:20</span>
-          <span>00:30</span>
-        </div>
-
-        {isMusic ? (
-          <div className="track">
-            <div className="track-label">
-              <Volume2 size={17} /> FAIXAS DE ÁUDIO
-            </div>
-            <div className="track-content">
-              {visibleMedia.map(item => (
-                <button
-                  key={item.id}
-                  className={`clip audio-clip ${
-                    selected?.id === item.id ? 'clip-active' : ''
-                  }`}
-                  onClick={() => {
-                    setSelected(item)
-                    setPlaying(false)
-                  }}
-                >
-                  <Music2 size={15} />
-                  <span>{item.name}</span>
-                </button>
-              ))}
-
-              {visibleMedia.length === 0 && (
-                <span className="track-empty">
-                  Importa áudio para começar
-                </span>
+              ) : selected?.type.startsWith('image/') ? (
+                <img src={selected.url} alt={selected.name} />
+              ) : (
+                <div className="empty-monitor">
+                  <Film size={48} />
+                  <strong>Monitor de vídeo</strong>
+                  <p>Adiciona um vídeo ou imagem usando o botão + na faixa.</p>
+                </div>
               )}
             </div>
-          </div>
-        ) : (
-          <>
-            <div className="track">
-              <div className="track-label">
-                <Film size={17} /> VÍDEO E IMAGEM
+
+            <section className="timeline video-timeline">
+              <div className="timeline-heading">
+                <div>
+                  <span className="eyebrow">EDITING TIMELINE</span>
+                  <h2>Montagem</h2>
+                </div>
+                <button className="small-plus" onClick={() => importButton('video')}>
+                  <Plus size={17} />
+                </button>
               </div>
-              <div className="track-content">
-                {visibleMedia
-                  .filter(item =>
-                    item.type.startsWith('video/') ||
-                    item.type.startsWith('image/')
-                  )
-                  .map(item => (
+
+              <div className="timeline-toolbar">
+                <button onClick={togglePlayback} disabled={!selected || selected.type.startsWith('image/')}>
+                  {playing ? <Pause size={17} /> : <Play size={17} />}
+                  {playing ? 'Pausar' : 'Reproduzir'}
+                </button>
+                <span>{videoMedia.length} elementos visuais · {audioMedia.length} áudios</span>
+              </div>
+
+              <div className="timeline-ruler">
+                <span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span>
+              </div>
+
+              <div className="track">
+                <button
+                  className="track-plus"
+                  onClick={() => importButton('video')}
+                  title="Adicionar vídeo ou imagem"
+                >
+                  <Plus size={17} />
+                </button>
+                <div className="track-label">
+                  <Film size={16} />
+                  <span>VÍDEO</span>
+                </div>
+                <div className="track-content">
+                  {videoMedia.map(item => (
                     <button
                       key={item.id}
-                      className={`clip video-clip ${
-                        selected?.id === item.id ? 'clip-active' : ''
-                      }`}
-                      onClick={() => {
-                        setSelected(item)
-                        setPlaying(false)
-                      }}
+                      className={`clip video-clip ${selected?.id === item.id ? 'clip-active' : ''}`}
+                      onClick={() => selectMedia(item)}
                     >
                       <Video size={15} />
                       <span>{item.name}</span>
                     </button>
                   ))}
-                {!visibleMedia.some(item =>
-                  item.type.startsWith('video/') ||
-                  item.type.startsWith('image/')
-                ) && (
-                  <span className="track-empty">
-                    Adiciona um vídeo ou imagem
-                  </span>
-                )}
+                  {videoMedia.length === 0 && <span className="track-empty">Adiciona vídeo no +</span>}
+                </div>
               </div>
-            </div>
 
-            <div className="track">
-              <div className="track-label">
-                <Volume2 size={17} /> BANDA SONORA
-              </div>
-              <div className="track-content">
-                {visibleMedia
-                  .filter(item => item.type.startsWith('audio/'))
-                  .map(item => (
+              <div className="track">
+                <button
+                  className="track-plus"
+                  onClick={() => importButton('audio')}
+                  title="Adicionar banda sonora"
+                >
+                  <Plus size={17} />
+                </button>
+                <div className="track-label">
+                  <Volume2 size={16} />
+                  <span>ÁUDIO</span>
+                </div>
+                <div className="track-content">
+                  {audioMedia.map(item => (
                     <button
                       key={item.id}
-                      className={`clip audio-clip ${
-                        selected?.id === item.id ? 'clip-active' : ''
-                      }`}
-                      onClick={() => {
-                        setSelected(item)
-                        setPlaying(false)
-                      }}
+                      className={`clip audio-clip ${selected?.id === item.id ? 'clip-active' : ''}`}
+                      onClick={() => selectMedia(item)}
                     >
                       <Music2 size={15} />
                       <span>{item.name}</span>
                     </button>
                   ))}
-                {!visibleMedia.some(item =>
-                  item.type.startsWith('audio/')
-                ) && (
-                  <span className="track-empty">
-                    Adiciona uma banda sonora
-                  </span>
-                )}
+                  {audioMedia.length === 0 && <span className="track-empty">Adiciona áudio no +</span>}
+                </div>
               </div>
-            </div>
-          </>
-        )}
 
-        <p className="timeline-note">
-          {isMusic
-            ? 'Ambiente de produção musical. A gravação vocal e a mistura serão implementadas nas próximas etapas.'
-            : 'Ambiente de montagem audiovisual. A edição sincronizada, os cortes e os efeitos serão implementados nas próximas etapas.'}
-        </p>
-      </section>
-
-      {isMusic && (
-        <section className="timeline">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">RECORDING STUDIO</p>
-              <h2>Captação vocal</h2>
-            </div>
-            <Mic size={22} />
-          </div>
-          <p className="timeline-note">
-            O módulo de gravação com microfone será activado numa próxima etapa.
-          </p>
-        </section>
+              <p className="timeline-note">
+                Os cortes, sincronização, efeitos e exportação serão implementados nas próximas etapas.
+              </p>
+            </section>
+          </section>
+        </div>
       )}
-
-      <nav className="bottom-nav">
-        <button className="nav-active" onClick={goHome}>
-          <AudioLines />
-          <span>Início</span>
-        </button>
-        <button onClick={() => fileRef.current?.click()}>
-          <FolderOpen />
-          <span>Biblioteca</span>
-        </button>
-        <button onClick={goHome}>
-          <Settings />
-          <span>Ambientes</span>
-        </button>
-      </nav>
     </main>
   )
 }
