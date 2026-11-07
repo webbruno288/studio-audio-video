@@ -307,3 +307,157 @@ h2 {
     padding-left: 35px;
   }
 }
+/* STUDIO - NOVA LINHA TEMPORAL */
+
+.timeline-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 18px 0;
+  color: #92969d;
+  font-size: 11px;
+}
+
+.timeline-toolbar button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+  border: 1px solid #d5a85f;
+  border-radius: 8px;
+  background: #25231f;
+  color: #d5a85f;
+  font-weight: 700;
+}
+
+.timeline-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.timeline-ruler {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 8px;
+  color: #92969d;
+  font-size: 10px;
+  border-bottom: 1px solid #393b40;
+}
+
+.track {
+  margin-top: 12px;
+  border: 1px solid #303238;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #191b1f;
+}
+
+.track-label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 13px;
+  border-bottom: 1px solid #303238;
+  color: #d5a85f;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.track-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 76px;
+  padding: 10px;
+  overflow-x: auto;
+}
+
+.track-empty {
+  color: #656a72;
+  font-size: 11px;
+}
+
+.clip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  width: min(190px, 65vw);
+  min-height: 48px;
+  padding: 10px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #f1f2f3;
+  text-align: left;
+}
+
+.clip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.video-clip {
+  background: #263b4a;
+  border-color: #42647c;
+}
+
+.audio-clip {
+  background: #293e31;
+  border-color: #426b50;
+}
+
+.clip-active {
+  border: 2px solid #d5a85f;
+}
+
+.clip svg {
+  flex-shrink: 0;
+  color: #d5a85f;
+}
+
+.media-item {
+  padding: 0;
+  gap: 5px;
+}
+
+.media-select {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 12px;
+  padding: 14px 8px 14px 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.media-select span {
+  overflow: hidden;
+  flex: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.delete-button {
+  display: grid;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #a76d6d;
+}
+
+.delete-button:active {
+  background: #392527;
+}
+
