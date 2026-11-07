@@ -157,6 +157,13 @@
     videoInput.addEventListener('change', () => {
       loadMedia(videoInput.files[0], 'video');
     });
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('STUDIO: modo offline preparado'))
+      .catch(error => console.error('Erro offline:', error));
+  });
+}
   </script>
 </body>
 </html>
