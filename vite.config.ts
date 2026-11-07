@@ -9,25 +9,16 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['studio-icon.svg'],
       manifest: {
-        name: 'Studio — Audio & Video',
-        short_name: 'Studio',
-        description: 'O teu estúdio audiovisual pessoal.',
+        name: 'KAPIA ONE PRO — Editor Audiovisual',
+        short_name: 'KAPIA ONE PRO',
+        description: 'O teu espaço profissional para criar e editar áudio e vídeo.',
         theme_color: '#101113',
         background_color: '#101113',
         display: 'standalone',
         orientation: 'any',
         start_url: '/studio-audio-video/',
-        scope: '/studio-audio-video/',
-        icons: [
-          {
-            src: '/studio-audio-video/studio-icon.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
-        ]
+        scope: '/studio-audio-video/'
       }
     })
   ]
