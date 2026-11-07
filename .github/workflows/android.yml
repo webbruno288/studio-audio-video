@@ -35,6 +35,9 @@ jobs:
         run: yes | sdkmanager --licenses
 
       - name: Install Android SDK packages
+        run: |
+          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+
       - name: Restore permanent signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.KAPIA_DEBUG_KEYSTORE_BASE64 }}
@@ -45,8 +48,6 @@ jobs:
           fi
           mkdir -p "$HOME/.android"
           echo "$KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
-        run: |
-          sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
       - name: Install dependencies
         run: npm install
