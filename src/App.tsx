@@ -4,7 +4,7 @@ import {
   AudioLines, Video, Music2, Image as ImageIcon,
   Plus, Bell, FolderOpen, Sparkles, Layers, Type,
   Play, Pause, Trash2, Volume2, Mic, Headphones,
-  SlidersHorizontal, Film, X, Scissors
+  SlidersHorizontal, Film, X
 } from 'lucide-react'
 
 type Media = {
@@ -31,12 +31,6 @@ export default function App() {
   const audioFileRef = useRef<HTMLInputElement>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
-
-  const visibleMedia = media.filter(item =>
-    mode === 'music'
-      ? item.type.startsWith('audio/')
-      : true
-  )
 
   const videoMedia = media.filter(item =>
     item.type.startsWith('video/') ||
@@ -202,7 +196,10 @@ export default function App() {
               <div className="notification-panel">
                 <div className="notification-title">
                   <strong>Notificações</strong>
-                  <button onClick={() => setNotificationsOpen(false)} aria-label="Fechar">
+                  <button
+                    onClick={() => setNotificationsOpen(false)}
+                    aria-label="Fechar"
+                  >
                     <X size={16} />
                   </button>
                 </div>
@@ -251,7 +248,10 @@ export default function App() {
               <>
                 <div className="panel-heading">
                   <span>BIBLIOTECA DE ÁUDIO</span>
-                  <button className="small-plus" onClick={() => importButton('audio')}>
+                  <button
+                    className="small-plus"
+                    onClick={() => importButton('audio')}
+                  >
                     <Plus size={17} />
                   </button>
                 </div>
@@ -264,16 +264,17 @@ export default function App() {
                   >
                     <Music2 size={17} />
                     <span>{item.name}</span>
-                    <button
+                    <span
                       className="asset-delete"
                       onClick={e => {
                         e.stopPropagation()
                         removeMedia(item.id)
                       }}
+                      role="button"
                       aria-label="Eliminar áudio"
                     >
                       <Trash2 size={15} />
-                    </button>
+                    </span>
                   </button>
                 ))}
 
@@ -323,7 +324,11 @@ export default function App() {
 
               <div className="music-now-playing">
                 <span>FAIXA SELECCIONADA</span>
-                <strong>{selected?.type.startsWith('audio/') ? selected.name : 'Nenhum áudio seleccionado'}</strong>
+                <strong>
+                  {selected?.type.startsWith('audio/')
+                    ? selected.name
+                    : 'Nenhum áudio seleccionado'}
+                </strong>
 
                 {selected?.type.startsWith('audio/') && (
                   <audio
@@ -343,13 +348,20 @@ export default function App() {
                   <span className="eyebrow">AUDIO SEQUENCER</span>
                   <h2>Linha de áudio</h2>
                 </div>
-                <button className="small-plus" onClick={() => importButton('audio')}>
+
+                <button
+                  className="small-plus"
+                  onClick={() => importButton('audio')}
+                >
                   <Plus size={17} />
                 </button>
               </div>
 
               <div className="timeline-toolbar">
-                <button onClick={togglePlayback} disabled={!selected?.type.startsWith('audio/')}>
+                <button
+                  onClick={togglePlayback}
+                  disabled={!selected?.type.startsWith('audio/')}
+                >
                   {playing ? <Pause size={17} /> : <Play size={17} />}
                   {playing ? 'Pausar' : 'Reproduzir'}
                 </button>
@@ -357,7 +369,10 @@ export default function App() {
               </div>
 
               <div className="timeline-ruler">
-                <span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span>
+                <span>00:00</span>
+                <span>00:10</span>
+                <span>00:20</span>
+                <span>00:30</span>
               </div>
 
               <div className="track">
@@ -368,10 +383,12 @@ export default function App() {
                 >
                   <Plus size={17} />
                 </button>
+
                 <div className="track-label">
                   <Volume2 size={16} />
                   <span>ÁUDIO 01</span>
                 </div>
+
                 <div className="track-content">
                   {audioMedia.map(item => (
                     <button
@@ -383,7 +400,10 @@ export default function App() {
                       <span>{item.name}</span>
                     </button>
                   ))}
-                  {audioMedia.length === 0 && <span className="track-empty">Adiciona áudio no +</span>}
+
+                  {audioMedia.length === 0 && (
+                    <span className="track-empty">Adiciona áudio no +</span>
+                  )}
                 </div>
               </div>
 
@@ -447,7 +467,10 @@ export default function App() {
               <>
                 <div className="panel-heading">
                   <span>PROJECT MEDIA</span>
-                  <button className="small-plus" onClick={() => importButton('video')}>
+                  <button
+                    className="small-plus"
+                    onClick={() => importButton('video')}
+                  >
                     <Plus size={17} />
                   </button>
                 </div>
@@ -458,18 +481,22 @@ export default function App() {
                     className={`asset-item ${selected?.id === item.id ? 'asset-selected' : ''}`}
                     onClick={() => selectMedia(item)}
                   >
-                    {item.type.startsWith('video/') ? <Video size={17} /> : <ImageIcon size={17} />}
+                    {item.type.startsWith('video/')
+                      ? <Video size={17} />
+                      : <ImageIcon size={17} />}
                     <span>{item.name}</span>
-                    <button
+
+                    <span
                       className="asset-delete"
                       onClick={e => {
                         e.stopPropagation()
                         removeMedia(item.id)
                       }}
+                      role="button"
                       aria-label="Eliminar ficheiro"
                     >
                       <Trash2 size={15} />
-                    </button>
+                    </span>
                   </button>
                 ))}
 
@@ -549,21 +576,34 @@ export default function App() {
                   <span className="eyebrow">EDITING TIMELINE</span>
                   <h2>Montagem</h2>
                 </div>
-                <button className="small-plus" onClick={() => importButton('video')}>
+
+                <button
+                  className="small-plus"
+                  onClick={() => importButton('video')}
+                >
                   <Plus size={17} />
                 </button>
               </div>
 
               <div className="timeline-toolbar">
-                <button onClick={togglePlayback} disabled={!selected || selected.type.startsWith('image/')}>
+                <button
+                  onClick={togglePlayback}
+                  disabled={!selected || selected.type.startsWith('image/')}
+                >
                   {playing ? <Pause size={17} /> : <Play size={17} />}
                   {playing ? 'Pausar' : 'Reproduzir'}
                 </button>
-                <span>{videoMedia.length} elementos visuais · {audioMedia.length} áudios</span>
+
+                <span>
+                  {videoMedia.length} elementos visuais · {audioMedia.length} áudios
+                </span>
               </div>
 
               <div className="timeline-ruler">
-                <span>00:00</span><span>00:10</span><span>00:20</span><span>00:30</span>
+                <span>00:00</span>
+                <span>00:10</span>
+                <span>00:20</span>
+                <span>00:30</span>
               </div>
 
               <div className="track">
@@ -574,10 +614,12 @@ export default function App() {
                 >
                   <Plus size={17} />
                 </button>
+
                 <div className="track-label">
                   <Film size={16} />
                   <span>VÍDEO</span>
                 </div>
+
                 <div className="track-content">
                   {videoMedia.map(item => (
                     <button
@@ -589,7 +631,10 @@ export default function App() {
                       <span>{item.name}</span>
                     </button>
                   ))}
-                  {videoMedia.length === 0 && <span className="track-empty">Adiciona vídeo no +</span>}
+
+                  {videoMedia.length === 0 && (
+                    <span className="track-empty">Adiciona vídeo no +</span>
+                  )}
                 </div>
               </div>
 
@@ -601,10 +646,12 @@ export default function App() {
                 >
                   <Plus size={17} />
                 </button>
+
                 <div className="track-label">
                   <Volume2 size={16} />
                   <span>ÁUDIO</span>
                 </div>
+
                 <div className="track-content">
                   {audioMedia.map(item => (
                     <button
@@ -616,7 +663,10 @@ export default function App() {
                       <span>{item.name}</span>
                     </button>
                   ))}
-                  {audioMedia.length === 0 && <span className="track-empty">Adiciona áudio no +</span>}
+
+                  {audioMedia.length === 0 && (
+                    <span className="track-empty">Adiciona áudio no +</span>
+                  )}
                 </div>
               </div>
 
