@@ -48,7 +48,7 @@ jobs:
           fi
           mkdir -p "$HOME/.android"
           echo "$KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
-
+          keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey
       - name: Install dependencies
         run: npm install
 
