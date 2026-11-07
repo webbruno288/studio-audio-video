@@ -19,7 +19,7 @@ type EditorMode = 'home' | 'video' | 'music'
 export default function App() {
   const [media, setMedia] = useState<Media[]>([])
   const [selected, setSelected] = useState<Media | null>(null)
-  const [mode, setMode] = useState<EditorMode>('home')
+  const [mode, setMode] = useState<EditorMode>('video')
   const [playing, setPlaying] = useState(false)
 
   const fileRef = useRef<HTMLInputElement>(null)
