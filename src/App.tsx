@@ -97,10 +97,19 @@ export default function App() {
   }
 
   function openEditor(editor: 'video' | 'music') {
-    setMode(editor)
-    setSelected(null)
-    setPlaying(false)
-  }
+  setMode(editor)
+  setPlaying(false)
+
+  setSelected(current => {
+    if (editor === 'music') {
+      return current?.type.startsWith('audio/')
+        ? current
+        : media.find(item => item.type.startsWith('audio/')) || null
+    }
+
+    return current || media[0] || null
+  })
+}
 
   function goHome() {
     setMode('home')
