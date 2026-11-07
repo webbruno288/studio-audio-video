@@ -1,18 +1,19 @@
-
 :root {
   font-family: Inter, Arial, sans-serif;
-  color: #e9edf2;
-  background: #101216;
+  color: #edf1f7;
+  background: #0b0e13;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --bg: #101216;
-  --panel: #181c22;
-  --panel-2: #20252d;
-  --line: #303640;
-  --muted: #929ba8;
-  --text: #edf0f4;
+
+  --bg: #0b0e13;
+  --panel: #121720;
+  --panel-2: #19212c;
+  --line: #283240;
+  --muted: #8995a5;
+  --text: #edf1f7;
   --accent: #d6a45b;
-  --green: #416b50;
+  --green: #35bd83;
+  --blue: #4b91df;
 }
 
 * {
@@ -48,7 +49,7 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #171a20;
+  background: #10151d;
   border-bottom: 1px solid var(--line);
   position: relative;
   z-index: 10;
@@ -81,27 +82,27 @@ button:disabled {
   justify-content: center;
   border: 1px solid transparent;
   background: transparent;
-  color: #aab2bd;
-  border-radius: 7px;
+  color: #aab5c4;
+  border-radius: 8px;
   transition: .2s ease;
 }
 
 .mode-button {
-  width: 35px;
-  height: 35px;
+  width: 36px;
+  height: 36px;
 }
 
 .mode-button:hover,
 .small-plus:hover,
 .track-plus:hover {
-  background: #303640;
+  background: #293443;
   color: white;
 }
 
 .mode-button.mode-active {
   color: var(--accent);
   background: #30291f;
-  border-color: #66502f;
+  border-color: #715733;
 }
 
 .notification-area {
@@ -114,10 +115,10 @@ button:disabled {
   right: 0;
   width: 260px;
   padding: 15px;
-  background: #20252d;
+  background: var(--panel-2);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  box-shadow: 0 12px 35px #0008;
+  border-radius: 12px;
+  box-shadow: 0 15px 40px #0009;
   z-index: 30;
 }
 
@@ -151,7 +152,7 @@ button:disabled {
 }
 
 .tool-sidebar {
-  background: #171a20;
+  background: #10151d;
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
@@ -164,7 +165,7 @@ button:disabled {
   width: 60px;
   min-height: 62px;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 9px;
   background: transparent;
   color: var(--muted);
   display: flex;
@@ -184,11 +185,11 @@ button:disabled {
 .tool-sidebar button.tool-active {
   color: var(--accent);
   background: #29251f;
-  border-color: #54432d;
+  border-color: #604a2f;
 }
 
 .asset-panel {
-  background: #191d24;
+  background: var(--panel);
   border-right: 1px solid var(--line);
   padding: 17px 13px;
   min-width: 0;
@@ -201,7 +202,7 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: #c8ced7;
+  color: #d0d7e1;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -212,25 +213,25 @@ button:disabled {
 
 .small-plus,
 .track-plus {
-  width: 29px;
-  height: 29px;
-  border-color: #424955;
-  background: #252b34;
+  width: 30px;
+  height: 30px;
+  border-color: #394655;
+  background: #202a37;
   color: var(--accent);
   flex-shrink: 0;
 }
 
 .asset-item {
   width: 100%;
-  min-height: 42px;
+  min-height: 43px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px;
+  padding: 8px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
-  color: #cbd1da;
+  color: #cbd3df;
   text-align: left;
   font-size: 11px;
   margin-bottom: 5px;
@@ -249,12 +250,6 @@ button:disabled {
   white-space: nowrap;
 }
 
-.asset-item:hover,
-.asset-item.asset-selected {
-  background: #292f38;
-  border-color: #49515e;
-}
-
 .asset-delete {
   border: 0;
   background: transparent;
@@ -264,7 +259,13 @@ button:disabled {
 }
 
 .asset-delete:hover {
-  color: #e77d7d;
+  color: #ef7777;
+}
+
+.asset-item:hover,
+.asset-item.asset-selected {
+  background: #202b38;
+  border-color: #3b4b5e;
 }
 
 .panel-empty {
@@ -326,25 +327,26 @@ button:disabled {
 .editor-heading h1 {
   font-size: 21px;
   margin: 0;
-  font-weight: 650;
+  font-weight: 700;
 }
 
 .local-status {
   font-size: 10px;
-  color: #8fae95;
+  color: #70c99a;
 }
 
 .video-monitor {
   width: 100%;
   height: min(52vw, 470px);
   min-height: 260px;
-  background: #050607;
-  border: 1px solid #343a44;
-  border-radius: 9px;
+  background: #05070b;
+  border: 1px solid #344152;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 10px 30px #0005;
 }
 
 .video-monitor video,
@@ -365,11 +367,11 @@ button:disabled {
 }
 
 .empty-monitor svg {
-  color: #596371;
+  color: #596a80;
 }
 
 .empty-monitor strong {
-  color: #dce1e8;
+  color: #dce4ee;
   font-size: 14px;
 }
 
@@ -379,11 +381,12 @@ button:disabled {
 }
 
 .timeline {
-  background: #191d24;
-  border: 1px solid var(--line);
-  border-radius: 9px;
+  background: #121923;
+  border: 1px solid #2b3949;
+  border-radius: 12px;
   padding: 15px;
   min-width: 0;
+  box-shadow: 0 8px 25px #0003;
 }
 
 .timeline-heading h2 {
@@ -406,10 +409,10 @@ button:disabled {
 }
 
 .timeline-toolbar button {
-  border: 1px solid #454d59;
-  background: #272d36;
-  border-radius: 6px;
-  padding: 7px 12px;
+  border: 1px solid #3c4b5c;
+  background: #202b38;
+  border-radius: 7px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -419,15 +422,16 @@ button:disabled {
 
 .timeline-toolbar button:hover {
   border-color: var(--accent);
+  background: #293646;
 }
 
 .timeline-ruler {
   display: flex;
   justify-content: space-between;
-  color: #7e8997;
+  color: #8997a8;
   font-size: 9px;
   padding: 7px 0;
-  border-bottom: 1px solid #39414c;
+  border-bottom: 1px solid #394655;
 }
 
 .track {
@@ -435,7 +439,7 @@ button:disabled {
   grid-template-columns: 34px 105px minmax(0, 1fr);
   align-items: stretch;
   min-height: 65px;
-  border-bottom: 1px solid #303640;
+  border-bottom: 1px solid #293746;
 }
 
 .track-plus {
@@ -446,11 +450,11 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #aab4c0;
+  color: #aab7c7;
   font-size: 9px;
   font-weight: 700;
   padding: 7px;
-  border-right: 1px solid #303640;
+  border-right: 1px solid #293746;
 }
 
 .track-label svg {
@@ -470,9 +474,9 @@ button:disabled {
 .clip {
   min-width: 120px;
   max-width: 190px;
-  height: 38px;
+  height: 40px;
   border: 1px solid #53616c;
-  border-radius: 5px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -489,12 +493,12 @@ button:disabled {
 }
 
 .video-clip {
-  background: #263d35;
-  border-color: #416b50;
+  background: #18392e;
+  border-color: #34795c;
 }
 
 .audio-clip {
-  background: #3b3023;
+  background: #3a3022;
   border-color: #80613b;
 }
 
@@ -504,7 +508,7 @@ button:disabled {
 }
 
 .track-empty {
-  color: #727e8c;
+  color: #7e8c9d;
   font-size: 10px;
   padding: 8px;
 }
@@ -517,9 +521,9 @@ button:disabled {
 }
 
 .music-monitor {
-  background: #15191f;
+  background: #121923;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 12px;
   min-height: 230px;
   display: flex;
   align-items: center;
@@ -531,7 +535,7 @@ button:disabled {
 .audio-artwork {
   width: 145px;
   height: 145px;
-  border-radius: 14px;
+  border-radius: 15px;
   background: linear-gradient(145deg, #344a3b, #202b25);
   border: 1px solid #617c68;
   display: flex;
@@ -540,6 +544,7 @@ button:disabled {
   align-items: center;
   gap: 12px;
   color: #e0c18b;
+  box-shadow: 0 8px 25px #0005;
 }
 
 .audio-artwork span {
@@ -575,9 +580,9 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 14px;
-  background: #191d24;
+  background: #121923;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 12px;
   padding: 17px;
 }
 
