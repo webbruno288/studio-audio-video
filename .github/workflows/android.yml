@@ -1,3 +1,4 @@
+
 name: Build KAPIA ONE PRO APK
 
 on:
@@ -37,22 +38,25 @@ jobs:
         run: |
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Restore permanent signing key
+      - name: Restore permanent release key
         env:
-          KEYSTORE_BASE64: ${{ secrets.KAPIA_DEBUG_KEYSTORE_BASE64 }}
+          KEYSTORE_BASE64: ${{ secrets.KAPIA_RELEASE_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KAPIA_RELEASE_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KAPIA_RELEASE_KEY_ALIAS }}
         run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "ERRO: Falta configurar a chave de assinatura."
+          set -e
+
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ] || [ -z "$KEY_ALIAS" ]; then
+            echo "ERRO: Falta configurar uma das chaves secretas."
             exit 1
           fi
 
-          mkdir -p "$HOME/.android"
-          echo "$KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/debug.keystore"
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/kapia-one-release.jks"
 
           keytool -list \
-            -keystore "$HOME/.android/debug.keystore" \
-            -storepass android \
-            -alias androiddebugkey
+            -keystore "$RUNNER_TEMP/kapia-one-release.jks" \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -alias "$KEY_ALIAS"
 
       - name: Install dependencies
         run: npm install
@@ -75,16 +79,22 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleDebug
 
-      - name: Sign APK with permanent key
+      - name: Sign APK with permanent release key
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KAPIA_RELEASE_KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KAPIA_RELEASE_KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KAPIA_RELEASE_KEY_ALIAS }}
         run: |
+          set -e
+
           APK="android/app/build/outputs/apk/debug/app-debug.apk"
           SIGNED="android/app/build/outputs/apk/debug/app-debug-signed.apk"
 
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" sign \
-            --ks "$HOME/.android/debug.keystore" \
-            --ks-key-alias androiddebugkey \
-            --ks-pass pass:android \
-            --key-pass pass:android \
+            --ks "$RUNNER_TEMP/kapia-one-release.jks" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KEYSTORE_PASSWORD \
+            --key-pass env:KEY_PASSWORD \
             --out "$SIGNED" "$APK"
 
           mv "$SIGNED" "$APK"
