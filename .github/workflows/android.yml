@@ -73,19 +73,15 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Download Gradle 8.14.3
-        run: |
-          curl -fL --retry 8 --retry-all-errors --retry-delay 15 --connect-timeout 30 --max-time 600 \
-            https://downloads.gradle.org/distributions/gradle-8.14.3-bin.zip \
-            -o "$RUNNER_TEMP/gradle-8.14.3-bin.zip"
-          unzip -q "$RUNNER_TEMP/gradle-8.14.3-bin.zip" -d "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP/gradle-8.14.3/bin" >> "$GITHUB_PATH"
-          "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --version
+      - name: Setup Gradle 8.14.3
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.14.3'
+          cache-provider: basic
 
       - name: Build APK
         run: |
           cd android
-          chmod +x gradlew
           gradle assembleDebug --no-daemon
 
       - name: Sign APK with permanent release key
