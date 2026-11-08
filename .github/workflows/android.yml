@@ -73,15 +73,26 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
-      - name: Setup Gradle 8.14.3
-        uses: gradle/actions/setup-gradle@v6
-        with:
-          gradle-version: '8.14.3'
-          cache-provider: basic
+      - name: Download Gradle 8.14.3 from Huawei mirror
+        run: |
+          set -e
+          GRADLE_URL="https://mirrors.huaweicloud.com/gradle/gradle-8.14.3-bin.zip"
+          GRADLE_ZIP="$RUNNER_TEMP/gradle-8.14.3-bin.zip"
+
+          curl -fL --retry 5 --retry-all-errors --retry-delay 10 "$GRADLE_URL" -o "$GRADLE_ZIP"
+          curl -fL --retry 5 --retry-all-errors --retry-delay 10 "$GRADLE_URL.sha256" -o "$RUNNER_TEMP/gradle.sha256"
+
+          EXPECTED=$(awk '{print $1}' "$RUNNER_TEMP/gradle.sha256")
+          echo "$EXPECTED  $GRADLE_ZIP" | sha256sum -c -
+
+          unzip -q "$GRADLE_ZIP" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/gradle-8.14.3/bin" >> "$GITHUB_PATH"
 
       - name: Build APK
         run: |
+          set -e
           cd android
+          chmod +x gradlew
           gradle assembleDebug --no-daemon
 
       - name: Sign APK with permanent release key
