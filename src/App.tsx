@@ -6,12 +6,14 @@ import {
   Play, Pause, Trash2, Volume2, Mic, Headphones,
   SlidersHorizontal, Film, X
 } from 'lucide-react'
+import VideoTimeline from './VideoTimeline'
 
 type Media = {
   id: number
   name: string
   type: string
   url: string
+  duration: number
 }
 
 type EditorMode = 'video' | 'music'
@@ -53,13 +55,39 @@ export default function App() {
         id: Date.now() + Math.random(),
         name: file.name,
         type: file.type,
-        url: URL.createObjectURL(file)
+        url: URL.createObjectURL(file),
+        duration: file.type.startsWith('image/') ? 5 : 0
       }))
 
     if (added.length) {
       setMedia(old => [...old, ...added])
       setSelected(added[0])
       setPlaying(false)
+
+      added.forEach(item => {
+        if (item.type.startsWith('image/')) return
+
+        const probe = document.createElement(
+          item.type.startsWith('audio/') ? 'audio' : 'video'
+        )
+
+        probe.preload = 'metadata'
+        probe.onloadedmetadata = () => {
+          const duration = Number.isFinite(probe.duration) ? probe.duration : 0
+          setMedia(old => old.map(file =>
+            file.id === item.id ? { ...file, duration } : file
+          ))
+          probe.removeAttribute('src')
+          probe.load()
+        }
+
+        probe.onerror = () => {
+          probe.removeAttribute('src')
+          probe.load()
+        }
+
+        probe.src = item.url
+      })
     }
 
     if (kind === 'audio' && audioFileRef.current) {
@@ -160,7 +188,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <AudioLines size={24} />
-          <span>STUDIO</span>
+          <span>KAPIA ONE PRO</span>
         </div>
 
         <div className="topbar-actions">
@@ -197,7 +225,7 @@ export default function App() {
                   </button>
                 </div>
                 <p>Ainda não tens notificações.</p>
-                <small>Os avisos do STUDIO aparecerão aqui.</small>
+                <small>Os avisos do KAPIA ONE PRO aparecerão aqui.</small>
               </div>
             )}
           </div>
@@ -312,7 +340,7 @@ export default function App() {
             <div className="music-monitor">
               <div className="audio-artwork">
                 <Headphones size={48} />
-                <span>STUDIO AUDIO</span>
+                <span>KAPIA ONE PRO AUDIO</span>
               </div>
 
               <div className="music-now-playing">
@@ -563,110 +591,14 @@ export default function App() {
               )}
             </div>
 
-            <section className="timeline video-timeline">
-              <div className="timeline-heading">
-                <div>
-                  <span className="eyebrow">EDITING TIMELINE</span>
-                  <h2>Montagem</h2>
-                </div>
-
-                <button
-                  className="small-plus"
-                  onClick={() => importButton('video')}
-                >
-                  <Plus size={17} />
-                </button>
-              </div>
-
-              <div className="timeline-toolbar">
-                <button
-                  onClick={togglePlayback}
-                  disabled={!selected || selected.type.startsWith('image/')}
-                >
-                  {playing ? <Pause size={17} /> : <Play size={17} />}
-                  {playing ? 'Pausar' : 'Reproduzir'}
-                </button>
-
-                <span>
-                  {videoMedia.length} elementos visuais · {audioMedia.length} áudios
-                </span>
-              </div>
-
-              <div className="timeline-ruler">
-                <span>00:00</span>
-                <span>00:10</span>
-                <span>00:20</span>
-                <span>00:30</span>
-              </div>
-
-              <div className="track">
-                <button
-                  className="track-plus"
-                  onClick={() => importButton('video')}
-                  title="Adicionar vídeo ou imagem"
-                >
-                  <Plus size={17} />
-                </button>
-
-                <div className="track-label">
-                  <Film size={16} />
-                  <span>VÍDEO</span>
-                </div>
-
-                <div className="track-content">
-                  {videoMedia.map(item => (
-                    <button
-                      key={item.id}
-                      className={`clip video-clip ${selected?.id === item.id ? 'clip-active' : ''}`}
-                      onClick={() => selectMedia(item)}
-                    >
-                      <Video size={15} />
-                      <span>{item.name}</span>
-                    </button>
-                  ))}
-
-                  {videoMedia.length === 0 && (
-                    <span className="track-empty">Adiciona vídeo no +</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="track">
-                <button
-                  className="track-plus"
-                  onClick={() => importButton('audio')}
-                  title="Adicionar banda sonora"
-                >
-                  <Plus size={17} />
-                </button>
-
-                <div className="track-label">
-                  <Volume2 size={16} />
-                  <span>ÁUDIO</span>
-                </div>
-
-                <div className="track-content">
-                  {audioMedia.map(item => (
-                    <button
-                      key={item.id}
-                      className={`clip audio-clip ${selected?.id === item.id ? 'clip-active' : ''}`}
-                      onClick={() => selectMedia(item)}
-                    >
-                      <Music2 size={15} />
-                      <span>{item.name}</span>
-                    </button>
-                  ))}
-
-                  {audioMedia.length === 0 && (
-                    <span className="track-empty">Adiciona áudio no +</span>
-                  )}
-                </div>
-              </div>
-
-              <p className="timeline-note">
-                Os cortes, sincronização, efeitos e exportação serão implementados nas próximas etapas.
-              </p>
-            </section>
+            <VideoTimeline
+              media={media}
+              selectedId={selected?.id ?? null}
+              playing={playing}
+              onSelect={selectMedia}
+              onImport={() => importButton('video')}
+              onPlayback={togglePlayback}
+            />
           </section>
         </div>
       )}
