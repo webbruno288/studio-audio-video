@@ -61,6 +61,7 @@ export default function VideoTimeline({
   onImport,
   onPlayback
 }: Props) {
+  void selectedId
   const [tracks, setTracks] = useState<Track[]>([
     makeTrack('video', 1),
     makeTrack('audio', 1)
@@ -434,7 +435,7 @@ export default function VideoTimeline({
       </div>
 
       <div className="mtl-track-list">
-        {tracks.map((track, index) => (
+        {tracks.map((track) => (
           <div className="mtl-track-row" key={track.id}>
             <div className="mtl-track-label">
               <div className={`mtl-track-icon ${track.kind}`}>
