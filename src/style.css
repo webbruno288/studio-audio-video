@@ -105,6 +105,40 @@ button:disabled {
   border-color: #715733;
 }
 
+.workspace-switch {
+  min-height: 34px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #202832;
+  color: #dce5e4;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.workspace-switch:hover {
+  border-color: var(--accent);
+  background: #293443;
+}
+
+.workspace-switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.workspace-switch-arrow {
+  color: var(--accent);
+  font-size: 15px;
+  line-height: 1;
+}
+
 .notification-area {
   position: relative;
 }

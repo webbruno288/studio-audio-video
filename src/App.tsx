@@ -165,21 +165,14 @@ export default function App() {
 
         <div className="topbar-actions">
           <button
-            className={`mode-button ${!isMusic ? 'mode-active' : ''}`}
-            onClick={() => openEditor('video')}
-            title="Editor de vídeo"
-            aria-label="Editor de vídeo"
+            className="workspace-switch"
+            onClick={() => openEditor(isMusic ? 'video' : 'music')}
+            title={isMusic ? 'Mudar para editor de vídeo' : 'Mudar para estúdio musical'}
+            aria-label={isMusic ? 'Mudar para editor de vídeo' : 'Mudar para estúdio musical'}
           >
-            <Video size={19} />
-          </button>
-
-          <button
-            className={`mode-button ${isMusic ? 'mode-active' : ''}`}
-            onClick={() => openEditor('music')}
-            title="Editor de música"
-            aria-label="Editor de música"
-          >
-            <AudioLines size={19} />
+            {isMusic ? <Video size={14} /> : <AudioLines size={14} />}
+            <span>{isMusic ? 'VÍDEO' : 'MÚSICA'}</span>
+            <span className="workspace-switch-arrow">⌄</span>
           </button>
 
           <div className="notification-area">
