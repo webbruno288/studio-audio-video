@@ -1224,3 +1224,69 @@ button:disabled {
     justify-content: flex-start;
   }
 }
+
+
+/* Biblioteca recolhível no editor de vídeo para ecrãs móveis */
+.library-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 11px;
+}
+
+.editor-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 800px) {
+  .video-layout {
+    position: relative;
+  }
+
+  .video-layout .library-toggle {
+    display: inline-flex;
+  }
+
+  .video-layout .asset-panel {
+    display: none;
+  }
+
+  .video-layout.library-open .asset-panel {
+    display: block;
+    position: absolute;
+    z-index: 30;
+    top: 0;
+    bottom: 0;
+    left: 58px;
+    width: min(280px, calc(100vw - 70px));
+    max-height: none;
+    overflow-y: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    box-shadow: 8px 8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .video-layout .video-main {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .video-layout .editor-heading-actions {
+    gap: 7px;
+  }
+}
+
+@media (max-width: 420px) {
+  .video-layout .library-toggle {
+    padding: 7px 8px;
+    font-size: 10px;
+  }
+}

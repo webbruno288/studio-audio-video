@@ -28,6 +28,7 @@ export default function App() {
   const [musicPanel, setMusicPanel] = useState<MusicPanel>('tracks')
   const [playing, setPlaying] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
+  const [showVideoLibrary, setShowVideoLibrary] = useState(false)
 
   const videoFileRef = useRef<HTMLInputElement>(null)
   const audioFileRef = useRef<HTMLInputElement>(null)
@@ -443,7 +444,7 @@ export default function App() {
           </section>
         </div>
       ) : (
-        <div className="video-layout">
+        <div className={`video-layout ${showVideoLibrary ? "library-open" : ""}`}>
 
           <aside className="tool-sidebar">
             <button
@@ -567,7 +568,17 @@ export default function App() {
                 <span className="eyebrow">VIDEO WORKSPACE</span>
                 <h1>Editor de vídeo</h1>
               </div>
-              <span className="local-status">● LOCAL</span>
+              <div className="editor-heading-actions">
+                <button
+                  className="library-toggle"
+                  onClick={() => setShowVideoLibrary(open => !open)}
+                  aria-expanded={showVideoLibrary}
+                >
+                  <FolderOpen size={15} />
+                  Biblioteca
+                </button>
+                <span className="local-status">● LOCAL</span>
+              </div>
             </div>
 
             <div className="video-monitor">
